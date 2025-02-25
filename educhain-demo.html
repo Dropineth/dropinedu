@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edu Chain: 学习-拥有-收益 演示</title>
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --secondary: #FFA000;
+            --dark: #1B5E20;
+            --light: #E8F5E9;
+            --accent: #FF6D00;
+            --error: #D32F2F;
+            --success: #388E3C;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        
+        .logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .logo svg {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #555;
+        }
+        
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 10px;
+        }
+        
+        .progress-container {
+            margin: 25px 0;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background-color: var(--dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #F57C00;
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+        }
+        
+        .btn-accent:hover {
+            background-color: #E65100;
+        }
+        
+        .nft-card {
+            border: 2px solid var(--light);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nft-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nft-image {
+            width: 100%;
+            height: 200px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .badge {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background-color: var(--accent);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .quiz-container {
+            margin: 20px 0;
+        }
+        
+        .question {
+            margin-bottom: 20px;
+        }
+        
+        .options {
+            margin-top: 10px;
+        }
+        
+        .option {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .option.selected {
+            background-color: var(--light);
+            border-color: var(--primary);
+        }
+        
+        .option.correct {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .option.incorrect {
+            background-color: var(--error);
+            color: white;
+        }
+        
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .feedback.success {
+            background-color: #E8F5E9;
+            color: var(--success);
+            display: block;
+        }
+        
+        .feedback.error {
+            background-color: #FFEBEE;
+            color: var(--error);
+            display: block;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .map-container {
+            height: 400px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tree-icon {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tree-icon:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            background-color: var(--accent);
+        }
+        
+        .tree-details {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255,255,255,0.9);
+            padding: 15px;
+            display: none;
+        }
+        
+        .tree-details.active {
+            display: block;
+        }
+        
+        .modules-list {
+            list-style: none;
+        }
+        
+        .module-item {
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .module-item:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .module-item.completed {
+            border-left: 4px solid var(--success);
+        }
+        
+        .module-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .module-details {
+            flex: 1;
+        }
+        
+        .marketplace {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .product-image {
+            height: 150px;
+            background-color: #f5f5f5;
+        }
+        
+        .product-details {
+            padding: 15px;
+        }
+        
+        .product-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .product-price {
+            color: var(--primary);
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .balance {
+            background-color: var(--light);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .marketplace {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 6V18L12 22L20 18V6L12 2Z" stroke="white" stroke-width="2" />
+                    <path d="M12 6L7 8.5V16L12 19L17 16V8.5L12 6Z" fill="white" />
+                    <circle cx="12" cy="12" r="2" fill="#FFA000" />
+                </svg>
+                <h1>Edu Chain: 学习-拥有-收益</h1>
+            </div>
+            <p>非洲树木种植教育交互式演示</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="user-profile">
+            <div class="avatar">U</div>
+            <div class="user-info">
+                <h3>用户名: <span id="username">林美华</span></h3>
+                <p>Open Campus ID: <span id="campus-id">OC-2025-1234</span></p>
+                <p>角色: <span id="user-role">森林管理员</span></p>
+            </div>
+            <div class="balance">
+                余额: <span id="balance">0</span> 积分
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="learn">学习</button>
+            <button class="tab-btn" data-tab="own">拥有</button>
+            <button class="tab-btn" data-tab="earn">收益</button>
+            <button class="tab-btn" data-tab="dashboard">仪表盘</button>
+        </div>
+        
+        <div id="learn" class="tab-content active">
+            <h2>树木种植教育模块</h2>
+            <p>完成学习模块来获取知识并解锁Capybara NFT树木所有权！</p>
+            
+            <div class="progress-container">
+                <div class="progress-details">
+                    <strong>学习进度:</strong> <span id="progress-percentage">0%</span> 完成
+                </div>
+                <div class="progress-bar">
+                    <div id="progress-bar" class="progress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <ul class="modules-list">
+                <li class="module-item" data-module="1">
+                    <div class="module-icon">1</div>
+                    <div class="module-details">
+                        <h4>模块1: 树种识别</h4>
+                        <p>学习如何识别不同的非洲树木种类及其特征</p>
+                    </div>
+                </li>
+                <li class="module-item" data-module="2">
+                    <div class="module-icon">2</div>
+                    <div class="module-details">
+                        <h4>模块2: 树木护理技术</h4>
+                        <p>掌握修剪、浇水和疾病预防的技巧</p>
+                    </div>
+                </li>
+                <li class="module-item" data-module="3">
+                    <div class="module-icon">3</div>
+                    <div class="module-details">
+                        <h4>模块3: 生物多样性和生态系统健康</h4>
+                        <p>了解树木如何影响生态系统</p>
+                    </div>
+                </li>
+                <li class="module-item" data-module="4">
+                    <div class="module-icon">4</div>
+                    <div class="module-details">
+                        <h4>模块4: 财产权与林业所有权</h4>
+                        <p>了解树木所有权的法律和财务方面</p>
+                    </div>
+                </li>
+                <li class="module-item" data-module="5">
+                    <div class="module-icon">5</div>
+                    <div class="module-details">
+                        <h4>模块5: 碳信用经济学和市场</h4>
+                        <p>学习碳信用如何工作以及如何交易</p>
+                    </div>
+                </li>
+                <li class="module-item" data-module="6">
+                    <div class="module-icon">6</div>
+                    <div class="module-details">
+                        <h4>模块6: 实际种树和维护</h4>
+                        <p>动手种植和维护您自己的树木</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="own" class="tab-content">
+            <h2>我的树木NFT</h2>
+            <p>您的Capybara NFT代表您作为森林管理员的树木非碳收益所有权。</p>
+            
+            <div class="card">
+                <h3>森林管理员角色</h3>
+                <p>作为森林管理员，您负责维护树木并管理非碳收益，如种子销售、水果销售和生物多样性服务。碳信用权归彩票获胜者所有。</p>
+            </div>
+            
+            <div id="nft-container">
+                <p>您目前没有拥有任何树木NFT。完成学习模块以获得您的第一个NFT！</p>
+            </div>
+        </div>
+        
+        <div id="earn" class="tab-content">
+            <h2>收益中心</h2>
+            <p>通过您的树木所有权获得非碳收益。</p>
+            
+            <div class="card">
+                <h3>收益类型</h3>
+                <p>作为森林管理员，您可以通过以下方式获得收益：</p>
+                <ul>
+                    <li>销售树木种子</li>
+                    <li>销售水果和其他树木产品</li>
+                    <li>提供生物多样性服务</li>
+                    <li>树木维护奖励</li>
+                </ul>
+            </div>
+            
+            <h3>收益市场</h3>
+            <div class="marketplace" id="marketplace">
+                <div class="product-card">
+                    <div class="product-image"></div>
+                    <div class="product-details">
+                        <div class="product-title">猴面包树种子包 (x10)</div>
+                        <div class="product-description">高质量猴面包树种子，适合育种或出售</div>
+                        <div class="product-price">销售价值: 50 积分</div>
+                        <button class="btn btn-secondary sell-btn" data-product="baobab-seeds" data-price="50">出售</button>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image"></div>
+                    <div class="product-details">
+                        <div class="product-title">芒果收获 (5kg)</div>
+                        <div class="product-description">新鲜芒果，来自您维护的树木</div>
+                        <div class="product-price">销售价值: 75 积分</div>
+                        <button class="btn btn-secondary sell-btn" data-product="mangos" data-price="75">出售</button>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image"></div>
+                    <div class="product-details">
+                        <div class="product-title">生物多样性服务</div>
+                        <div class="product-description">为当地社区提供生态系统支持服务</div>
+                        <div class="product-price">收益: 30 积分/月</div>
+                        <button class="btn btn-secondary collect-btn" data-service="biodiversity" data-price="30">收集月度收益</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="dashboard" class="tab-content">
+            <h2>环境影响仪表盘</h2>
+            <p>跟踪您树木的环境影响和收益。</p>
+            
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-label">树木总数</div>
+                    <div class="stat-value" id="total-trees">0</div>
+                    <div class="stat-description">您正在维护的树木</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">总收益</div>
+                    <div class="stat-value" id="total-earnings">0</div>
+                    <div class="stat-description">累计积分</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">环境影响</div>
+                    <div class="stat-value" id="environmental-impact">0</div>
+                    <div class="stat-description">减少的CO2当量(kg)</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">培训完成率</div>
+                    <div class="stat-value" id="completion-rate">0%</div>
+                    <div class="stat-description">已完成的学习模块</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>我的树木地图</h3>
+                <div class="map-container" id="tree-map">
+                    <!-- 树图标将通过JavaScript动态添加 -->
+                    <div class="tree-details" id="tree-details">
+                        <h4>树木详情</h4>
+                        <p>种类: <span id="tree-species"></span></p>
+                        <p>位置: <span id="tree-location"></span></p>
+                        <p>种植日期: <span id="tree-date"></span></p>
+                        <p>碳汇潜力: <span id="tree-carbon"></span> kg CO2/年</p>
+                        <p>非碳收益: <span id="tree-non-carbon"></span> 积分/月</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模块学习模态窗口 -->
+    <div class="modal" id="module-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="module-title">模块标题</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div id="module-content">
+                <!-- 模块内容将通过JavaScript动态加载 -->
+            </div>
+            <div class="quiz-container" id="quiz-container">
+                <h4>知识检验</h4>
+                <div class="question">
+                    <p id="question-text">问题内容</p>
+                    <div class="options" id="options-container">
+                        <!-- 选项将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+                <div class="feedback" id="quiz-feedback"></div>
+                <button class="btn" id="submit-answer">提交答案</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NFT奖励模态窗口 -->
+    <div class="modal" id="nft-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>恭喜！您获得了Capybara树木NFT</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div id="nft-reward-content">
+                <div class="nft-image" id="reward-nft-image"></div>
+                <h4 id="nft-tree-species">猴面包树 #1234</h4>
+                <p>作为森林管理员，您现在负责维护这棵树并管理其非碳收益。</p>
+                <p>位置: <span id="nft-location">肯尼亚内罗毕南部</span></p>
+                <p>种植日期: <span id="nft-date">2025-02-25</span></p>
+                <p>预计月度非碳收益: <span id="nft-income">25-40</span> 积分</p>
+                <button class="btn" id="claim-nft">领取NFT</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 交易模态窗口 -->
+    <div class="modal" id="transaction-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>交易确认</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div id="transaction-content">
+                <p>您确定要出售 <span id="product-name">产品</span> 获得 <span id="product-price">0</span> 积分吗？</p>
+                <div class="transaction-buttons">
+                    <button class="btn" id="confirm-transaction">确认</button>
+                    <button class="btn btn-secondary" id="cancel-transaction">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let userProgress = 0;
+        let completedModules = [];
+        let userBalance = 0;
+        let userTrees = [];
+        let currentModule = null;
+        let selectedOption = null;
+        let transactionProduct = null;
+        let transactionPrice = 0;
+        
+        // 模块内容和测验数据
+        const moduleData = [
+            {
+                id: 1,
+                title: "模块1: 树种识别",
+                content: `
+                    <p>非洲有丰富多样的树种，每种都有其独特的特征和环境价值。在本模块中，您将学习如何识别一些主要的非洲树种。</p>
+                    <h4>主要树种：</h4>
+                    <ul>
+                        <li><strong>猴面包树 (Adansonia digitata)</strong>: 粗壮的树干，巨大的冠层，可以存储大量水分。</li>
+                        <li><strong>非洲柚木 (Milicia excelsa)</strong>: 高大的硬木树，有着直而粗的树干。</li>
+                        <li><strong>芒果树 (Mangifera indica)</strong>: 浓密的树冠，能产生美味的水果。</li>
+                        <li><strong>金合欢树 (Acacia)</strong>: 适应干旱环境，通常有平顶树冠。</li>
+                    </ul>
+                    <p>识别树种的关键特征包括：</p>
+                    <ul>
+                        <li>叶子形状和排列</li>
+                        <li>树皮纹理和颜色</li>
+                        <li>花朵和果实特征</li>
+                        <li>整体树形和生长习性</li>
+                    </ul>
+                `,
+                quiz: {
+                    question: "以下哪种树以其粗壮的树干而闻名，能储存大量水分以渡过干旱季节？",
+                    options: [
+                        "非洲柚木",
+                        "猴面包树",
+                        "芒果树",
+                        "金合欢树"
+                    ],
+                    correct: 1
+                }
+            },
+            {
+                id: 2,
+                title: "模块2: 树木护理技术",
+                content: `
+                    <p>正确的树木护理对于确保树木健康生长和最大化环境效益至关重要。</p>
+                    <h4>关键护理技术：</h4>
+                    <ul>
+                        <li><strong>浇水</strong>: 新种植的树木需要定期浇水，尤其是在干旱地区。一旦根系建立，许多本地树种能够自给自足。</li>
+                        <li><strong>修剪</strong>: 正确修剪可以促进健康生长，移除损坏或患病的枝条，塑造树冠。</li>
+                        <li><strong>施肥</strong>: 有
