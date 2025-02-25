@@ -498,4 +498,206 @@ In this design, the geospatial data (latitude and longitude) of each tree will b
 This setup uses **ERC-721** NFTs for both **carbon credit ownership** (Lotto winners) and **non-carbon credit earnings** (learners) and incorporates a **reward system** for learners. **Geospatial data** ensures transparency in tree care and carbon credit management, while **smart contracts** facilitate a seamless interaction between learners, Lotto winners, and carbon credit marketplaces.
 
 
+To build the **Edu Chain Integration** based on **Open Campus ID**, **Capybara NFTs**, and the **Tree Planting Education** curriculum, we'll define the contract structure that mirrors the workflows and modules described earlier.
 
+Here is a breakdown of each contract/module with its corresponding workflow and functionality. The **Edu Chain** integration connects these elements to ensure a cohesive experience for learners, NFT owners, and stakeholders involved in tree planting and biodiversity management.
+
+### **1. Open Campus ID (Soulbound Token)**
+
+This contract will manage the issuance of learner IDs as **soulbound tokens (SBTs)**, which are non-transferable, ensuring that credentials are tied to the learner's identity and cannot be sold or transferred.
+
+#### **Contract: `OpenCampusID.sol`**
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract OpenCampusID is ERC721URIStorage, Ownable {
+
+    uint256 public currentId;
+    mapping(uint256 => string) public learnerData;
+
+    constructor() ERC721("OpenCampusID", "OCID") {}
+
+    // Issue a new learner ID (SBT) to the learner
+    function mintOpenCampusID(address learner, string memory metadataURI) external onlyOwner {
+        uint256 newId = currentId;
+        _mint(learner, newId);
+        _setTokenURI(newId, metadataURI);  // Learner profile URI
+        currentId++;
+    }
+
+    // Record learner data (e.g., completed modules)
+    function setLearnerData(uint256 tokenId, string memory data) external {
+        require(ownerOf(tokenId) == msg.sender, "You are not the owner of this ID");
+        learnerData[tokenId] = data;
+    }
+
+    // View learner data
+    function getLearnerData(uint256 tokenId) external view returns (string memory) {
+        return learnerData[tokenId];
+    }
+}
+```
+
+### **2. Capybara NFT (Tree Ownership)**
+
+This contract is responsible for minting and managing the **Capybara NFTs**, which represent tree/land ownership or engagement in specific ecological projects. The NFTs also track the connection between learners and trees.
+
+#### **Contract: `CapybaraNFT.sol`**
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract CapybaraNFT is ERC721URIStorage, Ownable {
+
+    uint256 public currentCapybaraId;
+    mapping(uint256 => address) public treeOwnership;
+    mapping(uint256 => string) public ecologicalProjects;
+
+    constructor() ERC721("CapybaraNFT", "CAPY") {}
+
+    // Mint a new Capybara NFT representing ownership of a tree or ecological project
+    function mintCapybaraNFT(address owner, string memory metadataURI, string memory projectDetails) external onlyOwner {
+        uint256 newId = currentCapybaraId;
+        _mint(owner, newId);
+        _setTokenURI(newId, metadataURI);  // Tree/project metadata URI
+        ecologicalProjects[newId] = projectDetails;  // Link project details to NFT
+        currentCapybaraId++;
+    }
+
+    // Link tree/land ownership to a learner
+    function linkTreeToLearner(uint256 capybaraId, address learner) external onlyOwner {
+        require(ownerOf(capybaraId) == learner, "Learner must own the Capybara NFT");
+        treeOwnership[capybaraId] = learner;
+    }
+
+    // View ecological project tied to NFT
+    function getEcologicalProject(uint256 capybaraId) external view returns (string memory) {
+        return ecologicalProjects[capybaraId];
+    }
+}
+```
+
+### **3. Tree Planting Education & Progress**
+
+This contract manages the educational curriculum, module progress, and certification of learners. It also integrates the learners' progress with the **Open Campus ID** and connects them to **Capybara NFTs** once specific milestones are reached.
+
+#### **Contract: `TreePlantingEducation.sol`**
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./OpenCampusID.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract TreePlantingEducation is Ownable {
+    OpenCampusID public openCampusID;
+
+    uint256 public totalModules;
+    mapping(address => uint256) public learnerProgress; // Learner's progress
+    mapping(address => bool) public learnerCertificates; // Whether certificate is earned
+
+    constructor(address _openCampusID) {
+        openCampusID = OpenCampusID(_openCampusID);
+        totalModules = 5;  // Number of modules in the tree planting course
+    }
+
+    // Update learner's progress after completing a module
+    function updateLearnerProgress(address learner, uint256 progress) external onlyOwner {
+        require(progress <= totalModules, "Progress exceeds total modules");
+        learnerProgress[learner] = progress;
+    }
+
+    // Issue certificate after completing all modules
+    function issueCertificate(address learner) external onlyOwner {
+        require(learnerProgress[learner] == totalModules, "Learner has not completed all modules");
+        learnerCertificates[learner] = true;
+
+        // Issue a certificate (e.g., as part of the OpenCampusID record)
+        uint256 learnerId = uint256(keccak256(abi.encodePacked(learner, block.timestamp)));
+        string memory certificateMetadata = "Certificate for tree planting course completion";
+        openCampusID.setLearnerData(learnerId, certificateMetadata); // Record certificate on Open Campus ID
+    }
+
+    // Check if a learner has earned a certificate
+    function hasCertificate(address learner) external view returns (bool) {
+        return learnerCertificates[learner];
+    }
+}
+```
+
+### **4. Carbon Credit & Reward Distribution**
+
+This contract is used for managing and distributing carbon credits and other rewards to learners. The learners can earn carbon credits based on the ecological projects they participate in (linked to **Capybara NFTs**). It will integrate carbon credit metrics, tree maintenance, and non-carbon-based earnings (e.g., seeds, fruits).
+
+#### **Contract: `CarbonCredit.sol`**
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract CarbonCredit is Ownable {
+
+    mapping(address => uint256) public carbonCredits; // Learner's carbon credits
+    mapping(address => uint256) public nonCarbonRewards; // Non-carbon-based rewards
+
+    event CarbonCreditIssued(address indexed learner, uint256 amount);
+    event NonCarbonRewardIssued(address indexed learner, uint256 amount);
+
+    // Issue carbon credits to a learner
+    function issueCarbonCredits(address learner, uint256 amount) external onlyOwner {
+        carbonCredits[learner] += amount;
+        emit CarbonCreditIssued(learner, amount);
+    }
+
+    // Issue non-carbon rewards (seeds, fruits, etc.)
+    function issueNonCarbonReward(address learner, uint256 amount) external onlyOwner {
+        nonCarbonRewards[learner] += amount;
+        emit NonCarbonRewardIssued(learner, amount);
+    }
+
+    // View learner's carbon credits
+    function getCarbonCredits(address learner) external view returns (uint256) {
+        return carbonCredits[learner];
+    }
+
+    // View learner's non-carbon rewards
+    function getNonCarbonRewards(address learner) external view returns (uint256) {
+        return nonCarbonRewards[learner];
+    }
+}
+```
+
+### **5. Integration of Modules with Workflow**
+
+Here's how the **Edu Chain Integration** workflow and modules interact:
+
+- **Learners** are issued an **Open Campus ID** (SBT) that stores their identity and progress in the platform.
+- Upon completing specific milestones in the **Tree Planting Education** course, learners earn **Capybara NFTs** representing their ownership in trees or ecological projects.
+- **Carbon Credit** rewards are distributed based on tree maintenance or ecological activities, rewarding learners for their participation in carbon sequestration efforts.
+- Non-carbon rewards (such as seeds, fruits, etc.) are also issued for additional activities tied to tree care, which can be tracked using the **Carbon Credit** contract.
+
+### **Workflow Diagram Overview**
+
+1. **Learner Progress**: Learners complete modules on **Tree Planting Education** and receive an **Open Campus ID** as a record of their achievements.
+2. **Capybara NFT**: Learners earn **Capybara NFTs** upon achieving tree ownership or participating in ecological projects.
+3. **Carbon Credit Distribution**: After contributing to tree maintenance or ecological initiatives, learners are rewarded with **carbon credits**.
+4. **Reward Mechanism**: Carbon and non-carbon-based rewards are tracked, distributed, and used for further engagement with the platform.
+
+### **Next Steps**:
+- **Deployment**: Deploy the smart contracts on the Edu Chain network.
+- **User Interfaces**: Develop the UI for learners to track progress, manage NFTs, view certificates, and access rewards.
+- **Expand Curriculum**: Add more learning modules, quizzes, and interactive content focused on environmental stewardship and sustainability.
+
+This set of contracts and workflows creates a fully decentralized, transparent, and rewarding system for education, ecological participation, and tree planting, with blockchain-backed records ensuring trust, engagement, and sustainability.
