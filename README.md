@@ -1,5 +1,5 @@
 ## Frontend Interaction Example
-[Click here](https://claude.site/artifacts/30dc969e-9c94-4600-8aec-e489fb6d059a)
+[Click here](https://claude.site/artifacts/04aa777a-a64d-44cc-aa63-f8a3cb22ceb9)
 
 
 
